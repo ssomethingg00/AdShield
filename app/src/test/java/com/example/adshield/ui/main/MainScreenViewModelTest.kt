@@ -1,27 +1,22 @@
 package com.example.adshield.ui.main
 
-import com.example.adshield.data.DataRepository
-import junit.framework.TestCase.assertEquals
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Test
 
 class MainScreenViewModelTest {
-  @Test
-  fun uiState_initiallyLoading() = runTest {
-    val viewModel = MainScreenViewModel(FakeMyModelRepository())
-    assertEquals(viewModel.uiState.first(), MainScreenUiState.Loading)
-  }
 
-  @Test
-  fun uiState_onItemSaved_isDisplayed() = runTest {
-    val viewModel = MainScreenViewModel(FakeMyModelRepository())
-    assertEquals(viewModel.uiState.first(), MainScreenUiState.Loading)
-  }
-}
+    @Test
+    fun initialState_vpnIsDisabled() {
+        val viewModel = MainScreenViewModel()
+        assertFalse(viewModel.isVpnActive.value)
+        assertEquals(0, viewModel.blockedCount.value)
+        assertEquals(0, viewModel.rulesCount.value)
+    }
 
-private class FakeMyModelRepository : DataRepository {
-  override val data: Flow<List<String>> = flow { emit(listOf("Sample")) }
+    @Test
+    fun initialState_privateDnsIsFalse() {
+        val viewModel = MainScreenViewModel()
+        assertFalse(viewModel.isPrivateDnsActive.value)
+    }
 }

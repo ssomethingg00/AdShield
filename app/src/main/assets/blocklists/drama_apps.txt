@@ -1,0 +1,101 @@
+# Drama App Ad Networks — Custom Blocklist
+# Format: ||domain^ (adblock syntax)
+# Updated: 2026-11-11
+# Source: Manually curated for DramaBox, ReelShort, FreereelsTV, StoryTV, NetShort
+
+# ── AppLovin MAX (Most common in drama apps) ──
+||*.applovin.com^
+||ms.applvn.com^
+||rt.applovin.com^
+||d.applovin.com^
+||img.applovin.com^
+||bchv.applovin.com^
+||edge.applovin.com^
+
+# ── Google AdMob / Ads ──
+||googleads.g.doubleclick.net^
+||pagead2.googlesyndication.com^
+||adservice.google.com^
+||googleadservices.com^
+||pubads.g.doubleclick.net^
+||securepubads.g.doubleclick.net^
+||ad.doubleclick.net^
+||cm.g.doubleclick.net^
+||stats.g.doubleclick.net^
+||tpc.googlesyndication.com^
+
+# ── Mintegral (heavy in Chinese drama apps) ──
+||*.mintegral.com^
+||*.mindworks.com^
+||*.mtrgt.com^
+||*.mtgad.com^
+
+# ── Pangle / TikTok for Business ──
+||*.pangle.io^
+||*.pglstatp.com^
+||*.pangleglobal.com^
+||*.byteoversea.com^
+||*.sgsnssdk.com^
+||*.ibytedtos.com^
+||*.ipstatp.com^
+
+# ── Unity Ads ──
+||ads.unity3d.com^
+||unityads.unity3d.com^
+||auction.unityads.unity3d.com^
+||config.unityads.unity3d.com^
+||publisher.unityads.unity3d.com^
+
+# ── IronSource / Unity LevelPlay ──
+||*.ironsrc.com^
+||*.iron-source.com^
+||outcome-ssp.supersonicads.com^
+||net.ironsrc.com^
+||sago.ironsrc.com^
+
+# ── Vungle / Liftoff ──
+||*.vungle.com^
+||*.liftoff.io^
+||reporting.vungle.com^
+||ads.vungle.com^
+
+# ── Meta Audience Network ──
+||an.facebook.com^
+||graph.facebook.com^
+||z-m-adspay.facebook.com^
+
+# ── Chartboost ──
+||*.chartboost.com^
+||live.chartboost.com^
+
+# ── InMobi ──
+||*.inmobi.com^
+||*.inmobicdn.net^
+
+# ── AdColony / Digital Turbine ──
+||*.adcolony.com^
+||*.digitalturbine.com^
+||*.fyber.com^
+
+# ── Criteo ──
+||*.criteo.com^
+||*.criteo.net^
+
+# ── MoPub (now deprecated but some SDKs still ping it) ──
+||*.mopub.com^
+
+# ── Adjust / AppsFlyer (Attribution — optional, may cause login issues if blocked) ──
+# Uncomment if you want to block tracking attribution:
+# ||*.appsflyer.com^
+# ||*.adjust.com^
+# ||*.branch.io^
+
+# ── General Ad/Tracking Networks ──
+||*.ads.yahoo.com^
+||*.advertising.com^
+||*.adnxs.com^
+||*.adsrvr.org^
+||*.casalemedia.com^
+||*.moatads.com^
+||*.taboola.com^
+||*.outbrain.com^

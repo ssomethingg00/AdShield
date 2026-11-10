@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">AdShield</string>
+    <string name="status_protected">Protected</string>
+    <string name="status_unprotected">Not Protected</string>
+    <string name="subtitle_protected">Ads are being blocked in short video and drama apps</string>
+    <string name="subtitle_unprotected">Tap below to activate local DNS ad blocking</string>
+    <string name="enable_protection">Enable AdShield</string>
+    <string name="stop_protection">Stop AdShield</string>
+    <string name="stat_ads_blocked">Ads Blocked Today</string>
+    <string name="stat_rules_loaded">Active Block Rules</string>
+    <string name="private_dns_warning_title">Private DNS Active</string>
+    <string name="private_dns_warning_message">Private DNS bypasses local ad blocking. Set Private DNS to &quot;Off&quot; in Android Settings &gt; Network for full protection.</string>
 </resources>

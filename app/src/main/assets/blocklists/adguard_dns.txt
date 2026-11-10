@@ -1,0 +1,16 @@
+# AdGuard DNS Filter — Subset
+# Source: https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
+# This is a curated subset. Full list is downloaded at runtime via WorkManager.
+
+||ad.360yield.com^
+||adserver.adtech.de^
+||ads.pubmatic.com^
+||ads.rubiconproject.com^
+||adx.g.doubleclick.net^
+||ib.adnxs.com^
+||sync.1rx.io^
+||sync.adkernel.com^
+||sync.adsrvr.org^
+||um.simpli.fi^
+||usersync.revenuemantra.com^
+||x.bidswitch.net^
