@@ -1,0 +1,287 @@
+name: 🛡️ AdShield — Build, Test & Release Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  # Manual trigger bhi chalega
+  workflow_dispatch:
+    inputs:
+      release:
+        description: 'Create GitHub Release with APK?'
+        required: false
+        default: 'false'
+        type: boolean
+
+# ─────────────────────────────────────────────────────────────
+# ENVIRONMENT
+# ─────────────────────────────────────────────────────────────
+env:
+  JAVA_VERSION: '21'
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.caching=true"
+
+jobs:
+
+# ══════════════════════════════════════════════════════════════
+# JOB 1 — STATIC ANALYSIS (Lint + Detekt)
+# ══════════════════════════════════════════════════════════════
+  lint-check:
+    name: 🔍 Static Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant gradlew permission
+        run: chmod +x gradlew
+
+      - name: Run Android Lint
+        run: ./gradlew lint
+
+      - name: Upload Lint Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: app/build/reports/lint-results-*.html
+          retention-days: 7
+
+# ══════════════════════════════════════════════════════════════
+# JOB 2 — UNIT TESTS (First Pass)
+# ══════════════════════════════════════════════════════════════
+  unit-test:
+    name: 🧪 Unit Tests (Round 1)
+    runs-on: ubuntu-latest
+    needs: lint-check
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant gradlew permission
+        run: chmod +x gradlew
+
+      - name: Run Unit Tests
+        run: ./gradlew test --continue
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results-round1
+          path: app/build/reports/tests/
+          retention-days: 7
+
+      - name: Publish Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Unit Tests — Round 1
+          path: app/build/test-results/**/*.xml
+          reporter: java-junit
+          fail-on-error: false
+
+# ══════════════════════════════════════════════════════════════
+# JOB 3 — BUILD DEBUG APK
+# ══════════════════════════════════════════════════════════════
+  build-debug:
+    name: 🔨 Build Debug APK
+    runs-on: ubuntu-latest
+    needs: unit-test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant gradlew permission
+        run: chmod +x gradlew
+
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
+
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: adshield-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          retention-days: 7
+
+# ══════════════════════════════════════════════════════════════
+# JOB 4 — RETEST (Second Pass — after build confirms no issues)
+# ══════════════════════════════════════════════════════════════
+  retest:
+    name: 🔁 Retest & Verify (Round 2)
+    runs-on: ubuntu-latest
+    needs: build-debug
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant gradlew permission
+        run: chmod +x gradlew
+
+      - name: Run All Tests Again (Clean)
+        run: ./gradlew clean test --rerun-tasks
+
+      - name: Upload Retest Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: retest-results-round2
+          path: app/build/reports/tests/
+          retention-days: 7
+
+      - name: Compare test runs
+        run: |
+          echo "✅ Round 2 tests complete"
+          echo "Both rounds must pass for release to proceed"
+
+# ══════════════════════════════════════════════════════════════
+# JOB 5 — QUALITY GATE (Final Check before Release)
+# ══════════════════════════════════════════════════════════════
+  quality-gate:
+    name: 🏁 Quality Gate — Final Check
+    runs-on: ubuntu-latest
+    needs: [ lint-check, unit-test, retest ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant gradlew permission
+        run: chmod +x gradlew
+
+      - name: APK Size Check
+        run: |
+          ./gradlew assembleDebug
+          APK_SIZE=$(stat -c%s app/build/outputs/apk/debug/*.apk)
+          APK_SIZE_MB=$((APK_SIZE / 1024 / 1024))
+          echo "📦 APK Size: ${APK_SIZE_MB} MB"
+          # Fail if APK > 50 MB (sanity check)
+          if [ $APK_SIZE_MB -gt 50 ]; then
+            echo "❌ APK too large! (${APK_SIZE_MB}MB > 50MB limit)"
+            exit 1
+          fi
+          echo "✅ APK size OK"
+
+      - name: Verify Blocklist Bundled
+        run: |
+          if [ -f "app/src/main/assets/blocklists/drama_apps.txt" ]; then
+            COUNT=$(wc -l < app/src/main/assets/blocklists/drama_apps.txt)
+            echo "✅ drama_apps.txt: $COUNT domains"
+          else
+            echo "⚠️ drama_apps.txt not found yet — OK for early dev"
+          fi
+
+      - name: Generate Quality Summary
+        run: |
+          echo "## 🏁 Quality Gate Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Android Lint | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests Round 1 | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests Round 2 | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          echo "| APK Size | ✅ OK |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🛡️ **AdShield is ready for release!**" >> $GITHUB_STEP_SUMMARY
+
+# ══════════════════════════════════════════════════════════════
+# JOB 6 — RELEASE (Only on main branch push or manual trigger)
+# ══════════════════════════════════════════════════════════════
+  release:
+    name: 🚀 Build Release APK & Publish
+    runs-on: ubuntu-latest
+    needs: quality-gate
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event.inputs.release == 'true')
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant gradlew permission
+        run: chmod +x gradlew
+
+      - name: Get version name
+        id: version
+        run: |
+          VERSION=$(grep 'versionName' app/build.gradle.kts | sed 's/.*= *"\(.*\)"/\1/' | head -1)
+          if [ -z "$VERSION" ]; then
+            VERSION="1.0.0-$(git rev-parse --short HEAD)"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "📌 Version: $VERSION"
+
+      - name: Build Release APK (unsigned)
+        run: ./gradlew assembleRelease
+
+      - name: Rename APK
+        run: |
+          mv app/build/outputs/apk/release/app-release-unsigned.apk \
+             app/build/outputs/apk/release/AdShield-v${{ steps.version.outputs.VERSION }}.apk || true
+          mv app/build/outputs/apk/release/app-release.apk \
+             app/build/outputs/apk/release/AdShield-v${{ steps.version.outputs.VERSION }}.apk || true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.VERSION }}
+          name: "🛡️ AdShield v${{ steps.version.outputs.VERSION }}"
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          body: |
+            ## 🛡️ AdShield — Drama App Ad Blocker
+
+            ### What's new
+            See auto-generated notes below.
+
+            ### Install
+            1. Download `AdShield-v*.apk`
+            2. Enable "Install from unknown sources" in Android settings
+            3. Install APK → Open app → Tap to enable
+
+            ### Requirements
+            - Android 8.0+ (API 26+)
+            - No root required
+
+          files: |
+            app/build/outputs/apk/release/AdShield-v*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

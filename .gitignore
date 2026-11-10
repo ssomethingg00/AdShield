@@ -1,0 +1,30 @@
+# Built output
+/build
+app/build
+
+# Gradle
+.gradle
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+
+# Local config (never commit this — has SDK paths)
+local.properties
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.DS_Store
+
+# Keystore (NEVER commit signing keys)
+*.jks
+*.keystore
+keystore.properties
+
+# Logs
+*.log
+
+# Android Studio Navigation Editor
+.navigation/
