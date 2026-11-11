@@ -9,11 +9,11 @@ android {
     namespace = "com.example.adshield"
     compileSdk = 36
     defaultConfig {
-        applicationId = "com.example.adshield"
-        minSdk = 26
-        targetSdk = 36
-        versionCode = 1
-        versionName = "1.0.0"
+        applicationId = "com.adshield.blocker"
+        minSdk = 24
+        targetSdk = 34
+        versionCode = 2
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -24,6 +24,10 @@ android {
             storePassword = "adshield123"
             keyAlias = "adshield"
             keyPassword = "adshield123"
+            enableV1Signing = true
+            enableV2Signing = true
+            enableV3Signing = true
+            enableV4Signing = false
         }
     }
 
