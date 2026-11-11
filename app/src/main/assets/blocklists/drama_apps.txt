@@ -1,9 +1,56 @@
-# Drama App Ad Networks — Custom Blocklist
+# Drama App Ad Networks — Comprehensive Blocklist
+# Optimized for: NetShort, DramaBox, ReelShort, ShortMax, GoodShort, MoboReels, FreereelsTV, StoryTV
 # Format: ||domain^ (adblock syntax)
-# Updated: 2026-11-11
-# Source: Manually curated for DramaBox, ReelShort, FreereelsTV, StoryTV, NetShort
 
-# ── AppLovin MAX (Most common in drama apps) ──
+# ── BidMachine (NetShort Primary In-App Bidding Partner) ──
+||bidmachine.io^
+||*.bidmachine.io^
+||bidmachine.com^
+||*.bidmachine.com^
+||appodeal.com^
+||*.appodeal.com^
+||appodealx.com^
+||*.appodealx.com^
+||adsmobile.com^
+||*.adsmobile.com^
+||stack.io^
+||*.stack.io^
+
+# ── TopOn Ad Mediation (Used by NetShort & Asian Drama Apps) ──
+||toponad.com^
+||*.toponad.com^
+||tponad.com^
+||*.tponad.com^
+||topon.com^
+||*.topon.com^
+
+# ── TradPlus Ad Mediation (Used by NetShort) ──
+||tradplusad.com^
+||*.tradplusad.com^
+||tradplus.com^
+||*.tradplus.com^
+
+# ── Bigo Ads (Major short-video ad supplier in Asia) ──
+||bigo.sg^
+||*.bigo.sg^
+||ads.bigo.sg^
+||bigosg.com^
+||*.bigosg.com^
+||bigo.video^
+||*.bigo.video^
+
+# ── Kwai / Kuaishou Ads (Chinese Short Video Network) ──
+||kwai.com^
+||*.kwai.com^
+||kwaicdn.com^
+||*.kwaicdn.com^
+||kwai-pro.com^
+||*.kwai-pro.com^
+||yximgs.com^
+||*.yximgs.com^
+
+# ── AppLovin MAX / AppLovin Exchange ──
+||applovin.com^
 ||*.applovin.com^
 ||ms.applvn.com^
 ||rt.applovin.com^
@@ -11,8 +58,10 @@
 ||img.applovin.com^
 ||bchv.applovin.com^
 ||edge.applovin.com^
+||applvn.com^
+||*.applvn.com^
 
-# ── Google AdMob / Ads ──
+# ── Google AdMob / DoubleClick ──
 ||googleads.g.doubleclick.net^
 ||pagead2.googlesyndication.com^
 ||adservice.google.com^
@@ -23,79 +72,136 @@
 ||cm.g.doubleclick.net^
 ||stats.g.doubleclick.net^
 ||tpc.googlesyndication.com^
+||admob.com^
+||*.admob.com^
+||doubleclick.net^
+||*.doubleclick.net^
 
-# ── Mintegral (heavy in Chinese drama apps) ──
+# ── Mintegral (Heavy in Chinese Short Drama Apps) ──
+||mintegral.com^
 ||*.mintegral.com^
+||mindworks.com^
 ||*.mindworks.com^
+||mtrgt.com^
 ||*.mtrgt.com^
+||mtgad.com^
 ||*.mtgad.com^
+||mintegral.net^
+||*.mintegral.net^
 
-# ── Pangle / TikTok for Business ──
+# ── Pangle / ByteDance / TikTok for Business ──
+||pangle.io^
 ||*.pangle.io^
+||pglstatp.com^
 ||*.pglstatp.com^
+||pangleglobal.com^
 ||*.pangleglobal.com^
+||byteoversea.com^
 ||*.byteoversea.com^
+||sgsnssdk.com^
 ||*.sgsnssdk.com^
+||ibytedtos.com^
 ||*.ibytedtos.com^
+||ipstatp.com^
 ||*.ipstatp.com^
+||bytevcloud.com^
+||*.bytevcloud.com^
+||snssdk.com^
+||*.snssdk.com^
+||volces.com^
+||*.volces.com^
+||volcengine.com^
+||*.volcengine.com^
 
-# ── Unity Ads ──
+# ── Unity Ads / Unity LevelPlay ──
 ||ads.unity3d.com^
 ||unityads.unity3d.com^
 ||auction.unityads.unity3d.com^
 ||config.unityads.unity3d.com^
 ||publisher.unityads.unity3d.com^
+||unity3d.com/ads^
+||unityads.com^
+||*.unityads.com^
 
-# ── IronSource / Unity LevelPlay ──
+# ── IronSource / Supersonic ──
+||ironsrc.com^
 ||*.ironsrc.com^
+||iron-source.com^
 ||*.iron-source.com^
 ||outcome-ssp.supersonicads.com^
 ||net.ironsrc.com^
 ||sago.ironsrc.com^
+||supersonic.com^
+||*.supersonic.com^
 
 # ── Vungle / Liftoff ──
+||vungle.com^
 ||*.vungle.com^
+||liftoff.io^
 ||*.liftoff.io^
 ||reporting.vungle.com^
 ||ads.vungle.com^
 
+# ── InMobi ──
+||inmobi.com^
+||*.inmobi.com^
+||inmobicdn.net^
+||*.inmobicdn.net^
+
+# ── Tencent GDT Ads ──
+||gdt.qq.com^
+||*.gdt.qq.com^
+||e.qq.com^
+||*.e.qq.com^
+||qcloudimg.com^
+||*.qcloudimg.com^
+
+# ── Baidu MobAds ──
+||mobads.baidu.com^
+||*.mobads.baidu.com^
+||pos.baidu.com^
+||*.pos.baidu.com^
+
 # ── Meta Audience Network ──
 ||an.facebook.com^
-||graph.facebook.com^
+||graph.facebook.com/ads^
 ||z-m-adspay.facebook.com^
 
 # ── Chartboost ──
+||chartboost.com^
 ||*.chartboost.com^
 ||live.chartboost.com^
 
-# ── InMobi ──
-||*.inmobi.com^
-||*.inmobicdn.net^
-
-# ── AdColony / Digital Turbine ──
-||*.adcolony.com^
-||*.digitalturbine.com^
+# ── Fyber / Digital Turbine ──
+||fyber.com^
 ||*.fyber.com^
+||digitalturbine.com^
+||*.digitalturbine.com^
+||inner-active.mobi^
+||*.inner-active.mobi^
 
-# ── Criteo ──
+# ── Smaato ──
+||smaato.net^
+||*.smaato.net^
+||smaato.com^
+||*.smaato.com^
+
+# ── Ogury ──
+||ogury.io^
+||*.ogury.io^
+||ogury.com^
+||*.ogury.com^
+
+# ── Tapjoy ──
+||tapjoy.com^
+||*.tapjoy.com^
+||tapjoyads.com^
+||*.tapjoyads.com^
+
+# ── General Ad Exchanges ──
+||criteo.com^
 ||*.criteo.com^
-||*.criteo.net^
-
-# ── MoPub (now deprecated but some SDKs still ping it) ──
-||*.mopub.com^
-
-# ── Adjust / AppsFlyer (Attribution — optional, may cause login issues if blocked) ──
-# Uncomment if you want to block tracking attribution:
-# ||*.appsflyer.com^
-# ||*.adjust.com^
-# ||*.branch.io^
-
-# ── General Ad/Tracking Networks ──
-||*.ads.yahoo.com^
-||*.advertising.com^
-||*.adnxs.com^
-||*.adsrvr.org^
-||*.casalemedia.com^
-||*.moatads.com^
+||taboola.com^
 ||*.taboola.com^
+||outbrain.com^
 ||*.outbrain.com^

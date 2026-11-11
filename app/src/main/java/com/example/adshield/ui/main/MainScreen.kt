@@ -64,7 +64,7 @@ import com.example.adshield.update.UpdateInfo
 import com.example.adshield.update.UpdateManager
 import kotlinx.coroutines.launch
 
-private const val CURRENT_APP_VERSION = "v1.0.2"
+private const val CURRENT_APP_VERSION = "v1.0.3"
 
 @Composable
 fun MainScreen(
@@ -194,13 +194,6 @@ fun MainScreen(
                             onClick = {
                                 showMenu = false
                                 triggerUpdateCheck()
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("🌐 GitHub Repository") },
-                            onClick = {
-                                showMenu = false
-                                UpdateManager.openInBrowser(context, UpdateManager.GITHUB_REPO_URL)
                             }
                         )
                         DropdownMenuItem(
@@ -422,17 +415,9 @@ fun MainScreen(
             },
             confirmButton = {
                 Button(
-                    onClick = {
-                        UpdateManager.openInBrowser(context, UpdateManager.GITHUB_REPO_URL)
-                        showAboutDialog = false
-                    }
+                    onClick = { showAboutDialog = false }
                 ) {
-                    Text("View GitHub")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showAboutDialog = false }) {
-                    Text("Close")
+                    Text("OK")
                 }
             }
         )
