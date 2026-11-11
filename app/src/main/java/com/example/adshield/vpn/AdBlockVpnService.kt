@@ -43,10 +43,10 @@ class AdBlockVpnService : VpnService() {
         private const val CHANNEL_ID = "adshield_vpn"
         private const val CHANNEL_NAME = "AdShield VPN"
 
-        // Virtual DNS addresses
+        // Virtual DNS addresses (Interface != DNS Server to prevent Linux loopback capture)
         private const val VPN_ADDRESS_IPV4 = "10.0.0.2"
-        private const val VPN_DNS_IPV4 = "10.0.0.2"
-        private const val VPN_ADDRESS_IPV6 = "fd00::2"
+        private const val VPN_DNS_IPV4 = "10.0.0.1"
+        private const val VPN_ADDRESS_IPV6 = "fd00::1"
         private const val VPN_DNS_IPV6 = "fd00::2"
 
         // Actions
@@ -156,13 +156,20 @@ class AdBlockVpnService : VpnService() {
                 // IPv4 DNS sinkhole
                 .addAddress(VPN_ADDRESS_IPV4, 32)
                 .addDnsServer(VPN_DNS_IPV4)
-                .addRoute(VPN_ADDRESS_IPV4, 32)
+                .addRoute(VPN_DNS_IPV4, 32)
                 // IPv6 DNS sinkhole
                 .addAddress(VPN_ADDRESS_IPV6, 128)
                 .addDnsServer(VPN_DNS_IPV6)
-                .addRoute(VPN_ADDRESS_IPV6, 128)
+                .addRoute(VPN_DNS_IPV6, 128)
+                .allowBypass()
                 .setMtu(1500)
                 .setBlocking(true)
+
+            try {
+                builder.addDisallowedApplication(packageName)
+            } catch (e: Exception) {
+                Log.w(TAG, "Cannot exclude self from VPN: ${e.message}")
+            }
 
             val fd = builder.establish()
             if (fd == null) {

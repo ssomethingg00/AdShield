@@ -34,10 +34,19 @@ class DnsPacketProcessor(
     companion object {
         private const val TAG = "DnsProcessor"
         private const val MTU = 1500
-        private const val DNS_TIMEOUT_MS = 3_000
+        private const val DNS_TIMEOUT_MS = 1_500
         private const val UDP_PROTO = 17
         private const val DNS_PORT = 53
         private const val WORKER_COUNT = 4
+
+        // Upstream DNS servers with automatic fallback (Google primary, Cloudflare, Quad9)
+        private val UPSTREAM_SERVERS = listOf(
+            "8.8.8.8",
+            "1.1.1.1",
+            "8.8.4.4",
+            "1.0.0.1",
+            "9.9.9.9"
+        )
     }
 
     @Volatile
@@ -46,9 +55,6 @@ class DnsPacketProcessor(
 
     private val incomingChannel = Channel<ByteArray>(capacity = 128)
     private val outgoingChannel = Channel<ByteArray>(capacity = 128)
-
-    private val socketLock = Any()
-    private var sharedSocket: DatagramSocket? = null
 
     /**
      * Starts the non-blocking reader, worker pool, and writer coroutines within [scope].
@@ -162,12 +168,6 @@ class DnsPacketProcessor(
         isRunning = false
         incomingChannel.close()
         outgoingChannel.close()
-        synchronized(socketLock) {
-            try {
-                sharedSocket?.close()
-            } catch (_: Exception) {}
-            sharedSocket = null
-        }
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -297,44 +297,43 @@ class DnsPacketProcessor(
     }
 
     // ─────────────────────────────────────────────────────────────
-    // Upstream DNS Forwarding
+    // Upstream DNS Forwarding with Multi-Server Fallback
     // ─────────────────────────────────────────────────────────────
 
-    private fun getOrCreateSocket(): DatagramSocket {
-        return sharedSocket?.takeIf { !it.isClosed } ?: run {
-            DatagramSocket().also { s ->
-                s.soTimeout = DNS_TIMEOUT_MS
-                if (vpnService != null && !vpnService.protect(s)) {
-                    s.close()
-                    throw IOException("Failed to protect upstream socket from VPN routing")
-                }
-                sharedSocket = s
-            }
-        }
-    }
-
     private fun forwardDnsToUpstream(dnsPayload: ByteArray): ByteArray? {
-        return try {
-            synchronized(socketLock) {
-                val socket = getOrCreateSocket()
-                val request = DatagramPacket(dnsPayload, dnsPayload.size, upstreamDns, upstreamPort)
+        for (serverIp in UPSTREAM_SERVERS) {
+            var socket: DatagramSocket? = null
+            try {
+                val serverAddr = InetAddress.getByName(serverIp)
+                socket = DatagramSocket().apply {
+                    soTimeout = DNS_TIMEOUT_MS
+                }
+
+                if (vpnService != null && !vpnService.protect(socket)) {
+                    Log.w(TAG, "Cannot protect socket for $serverIp")
+                }
+
+                val request = DatagramPacket(dnsPayload, dnsPayload.size, serverAddr, DNS_PORT)
                 socket.send(request)
 
                 val responseBuffer = ByteArray(4096)
                 val response = DatagramPacket(responseBuffer, responseBuffer.size)
                 socket.receive(response)
-                responseBuffer.copyOf(response.length)
-            }
-        } catch (e: Exception) {
-            Log.w(TAG, "Upstream DNS failed: ${e.message}")
-            synchronized(socketLock) {
+
+                if (response.length > 0) {
+                    return responseBuffer.copyOf(response.length)
+                }
+            } catch (e: Exception) {
+                // Timeout or network drop on this upstream — try next immediately
+                Log.d(TAG, "Upstream $serverIp failed (${e.message}), trying next...")
+            } finally {
                 try {
-                    sharedSocket?.close()
+                    socket?.close()
                 } catch (_: Exception) {}
-                sharedSocket = null
             }
-            null
         }
+        Log.w(TAG, "All upstream DNS servers timed out for query")
+        return null
     }
 
     // ─────────────────────────────────────────────────────────────
